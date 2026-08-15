@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
     
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -21,26 +22,30 @@ jobs:
       run: |
         pip install flet
         pip install requests httpx
+
+    - name: Setup Java (Required for Android Build)
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
     
     - name: Setup Flutter
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y curl unzip
-        curl -L -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.0-stable.zip
-        unzip -q flutter.zip -d /opt/
-        echo "/opt/flutter/bin" >> $GITHUB_PATH
-        /opt/flutter/bin/flutter config --no-analytics
-        /opt/flutter/bin/flutter doctor -v
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
+        cache: true
     
     - name: Accept Android Licenses
       run: |
-        yes | /opt/flutter/bin/flutter doctor --android-licenses || true
+        yes | flutter doctor --android-licenses || true
+
+    - name: Check Flutter Doctor
+      run: flutter doctor -v
     
     - name: Build APK
       run: |
         flet build apk
-      env:
-        FLUTTER_ROOT: /opt/flutter
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
