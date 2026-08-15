@@ -23,24 +23,18 @@ jobs:
         pip install requests httpx
     
     - name: Setup Flutter
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y curl unzip
-        curl -L -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.22.4-stable.zip
-        unzip -q flutter.zip -d /opt/
-        echo "/opt/flutter/bin" >> $GITHUB_PATH
-        /opt/flutter/bin/flutter config --no-analytics
-        /opt/flutter/bin/flutter doctor -v
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
     
     - name: Accept Android Licenses
       run: |
-        yes | /opt/flutter/bin/flutter doctor --android-licenses
+        yes | flutter doctor --android-licenses
     
     - name: Build APK
       run: |
         flet build apk
-      env:
-        FLUTTER_ROOT: /opt/flutter
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
