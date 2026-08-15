@@ -1,3 +1,49 @@
-    - name: Build APK with Flutter Root
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install Flet
       run: |
-        flet build apk --flutter-root /opt/flutter
+        pip install flet
+        pip install requests httpx
+    
+    - name: Setup Flutter
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl unzip
+        curl -L -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.0-stable.zip
+        unzip -q flutter.zip -d /opt/
+        echo "/opt/flutter/bin" >> $GITHUB_PATH
+        /opt/flutter/bin/flutter config --no-analytics
+        /opt/flutter/bin/flutter doctor -v
+    
+    - name: Accept Android Licenses
+      run: |
+        yes | /opt/flutter/bin/flutter doctor --android-licenses || true
+    
+    - name: Build APK
+      run: |
+        flet build apk
+      env:
+        FLUTTER_ROOT: /opt/flutter
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: arzshenas-apk
+        path: build/apk/*.apk
