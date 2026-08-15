@@ -17,22 +17,26 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install dependencies
+    - name: Install Flet
       run: |
         pip install flet
         pip install requests httpx
     
-    - name: Setup Flutter with subosito
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.16.0'
-        channel: 'stable'
+    - name: Setup Flutter
+      run: |
+        git clone https://github.com/flutter/flutter.git --depth 1 -b stable /opt/flutter
+        echo "$PATH"
+        /opt/flutter/bin/flutter config --no-analytics
+        /opt/flutter/bin/flutter doctor -v
     
     - name: Build APK
       run: |
-        flet build apk
+        export PATH="/opt/flutter/bin:$PATH"
+        export FLUTTER_ROOT="/opt/flutter"
+        flet build apk --no-prompt
       env:
-        FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable/3.16.0/x64
+        FLUTTER_ROOT: /opt/flutter
+        PATH: /opt/flutter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
