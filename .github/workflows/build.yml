@@ -26,9 +26,7 @@ jobs:
       run: |
         git clone https://github.com/flutter/flutter.git --depth 1 -b stable /opt/flutter
         echo "/opt/flutter/bin" >> $GITHUB_PATH
-        export PATH="/opt/flutter/bin:$PATH"
         /opt/flutter/bin/flutter config --no-analytics
-        /opt/flutter/bin/flutter doctor -v
     
     - name: Accept Android Licenses
       run: |
@@ -36,9 +34,10 @@ jobs:
     
     - name: Build APK
       run: |
+        # تنظیم مسیر Flutter برای این مرحله
         export PATH="/opt/flutter/bin:$PATH"
         export FLUTTER_ROOT="/opt/flutter"
-        which flutter
+        # اجرای flet با مسیر مشخص
         flet build apk
       env:
         FLUTTER_ROOT: /opt/flutter
