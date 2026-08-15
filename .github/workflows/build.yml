@@ -22,12 +22,20 @@ jobs:
         pip install flet
         pip install requests httpx
     
+    - name: Setup Flutter with subosito
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.16.0'
+        channel: 'stable'
+    
     - name: Build APK
-      run: flet build apk
+      run: |
+        flet build apk
+      env:
+        FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable/3.16.0/x64
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: arzshenas-apk
         path: build/apk/*.apk
-        
